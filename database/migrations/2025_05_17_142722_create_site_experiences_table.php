@@ -13,7 +13,7 @@ return new class extends Migration
 public function up(): void
 {
     Schema::create('site_experiences', function (Blueprint $table) {
-        $table->id('experience_id');
+        $table->id();
         $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
         $table->foreignId('site_id')->constrained('tourist_sites')->onDelete('cascade');
         $table->string('title', 200)->nullable();

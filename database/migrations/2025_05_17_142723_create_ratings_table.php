@@ -13,7 +13,7 @@ return new class extends Migration
 public function up(): void
 {
     Schema::create('ratings', function (Blueprint $table) {
-        $table->id('rating_id');
+        $table->id();
         $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
         $table->string('target_type', 30); // e.g., 'TouristSite', 'Product', 'Hotel', 'Article'
         $table->unsignedBigInteger('target_id'); // ID of the rated item

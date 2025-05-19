@@ -13,7 +13,7 @@ return new class extends Migration
 public function up(): void
 {
     Schema::create('user_phone_numbers', function (Blueprint $table) {
-        $table->id('phone_id'); // Specify PK name if not 'id'
+        $table->id(); // Specify PK name if not 'id'
         $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); // FK to users table
         $table->string('phone_number');
         $table->boolean('is_primary')->default(false);

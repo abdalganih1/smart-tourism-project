@@ -64,7 +64,7 @@
 
                              <div class="col-span-full flex items-center justify-end mt-3">
                                   <x-primary-button type="submit" class="mr-2">{{ __('Apply Filters') }}</x-primary-button>
-                                   @if (request('status') || request('hotel_id') || request('user_id')) {{-- Check if any filter is active --}}
+                                   @if (request('status') || request('hotel_id') || request('user_id'))
                                         <a href="{{ route('admin.hotel-bookings.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 border border-transparent rounded-md font-semibold text-xs text-gray-800 dark:text-gray-200 uppercase tracking-widest hover:bg-gray-300 dark:hover:bg-gray-600 focus:bg-gray-300 dark:focus:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">{{ __('Clear Filters') }}</a>
                                    @endif
                              </div>
@@ -153,10 +153,14 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                            <a href="{{ route('admin.hotel-bookings.show', $booking) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600 mr-3">View</a>
+                                            {{-- ** السطر الذي سبب الخطأ --}}
+                                            @if ($booking && $booking->id) {{-- أضف هذا التحقق --}}
+                                                <a href="{{ route('admin.hotel-bookings.show', ['hotel_booking' => $booking->id]) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-600 mr-3">{{ __('View') }}</a>
+                                            @else
+                                                <span class="text-gray-500">{{ __('N/A') }}</span> {{-- أو عرض رسالة بديلة --}}
+                                            @endif
                                             {{-- Optional: Add Update Status buttons/forms here --}}
                                             {{-- Optional: Add Delete button (be careful with deleting bookings!) --}}
-                                            {{-- <form action="{{ route('admin.hotel-bookings.destroy', $booking) }}" method="POST" class="inline"> ... </form> --}}
                                         </td>
                                     </tr>
                                 @endforeach

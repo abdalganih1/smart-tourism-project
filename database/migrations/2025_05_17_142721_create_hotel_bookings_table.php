@@ -13,7 +13,7 @@ return new class extends Migration
 public function up(): void
 {
     Schema::create('hotel_bookings', function (Blueprint $table) {
-        $table->id('booking_id');
+        $table->id();
         $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
         $table->foreignId('room_id')->constrained('hotel_rooms')->onDelete('restrict');
         $table->date('check_in_date');

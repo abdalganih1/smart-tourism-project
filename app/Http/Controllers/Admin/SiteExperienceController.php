@@ -11,7 +11,7 @@ use App\Models\TouristSite; // Import TouristSite model (for site relationship)
 use Illuminate\Support\Facades\Log; // For logging
 use Illuminate\Support\Facades\Auth; // For authorization check (optional, handled by middleware/policy)
 use Illuminate\Support\Facades\Storage; // For file storage
-
+use DB;
 
 class SiteExperienceController extends Controller
 {

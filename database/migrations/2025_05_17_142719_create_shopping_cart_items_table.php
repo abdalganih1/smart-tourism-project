@@ -13,7 +13,7 @@ return new class extends Migration
 public function up(): void
 {
     Schema::create('shopping_cart_items', function (Blueprint $table) {
-        $table->id('cart_item_id'); // Using auto-increment PK as per schema
+        $table->id(); // Using auto-increment PK as per schema
         // Alternative: $table->primary(['user_id', 'product_id']); for composite PK
 
         $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

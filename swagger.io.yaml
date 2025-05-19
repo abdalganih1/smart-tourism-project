@@ -2721,6 +2721,783 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFound'
 
+  # --- Public Paths (Browse Data - Continued from previous section) ---
+
+  /tourist-activities:
+    get:
+      summary: List all tourist activities
+      tags:
+        - Tourist Activities
+      parameters:
+        # Add pagination, filtering (e.g., by site_id, city, date range)
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+          description: Page number for pagination.
+          example: 1
+        - name: site_id
+          in: query
+          schema:
+            type: integer
+            nullable: true
+          description: Filter activities by a specific tourist site ID.
+          example: 1
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+            nullable: true
+          description: Filter activities starting on or after this date.
+          example: 2025-06-01
+      responses:
+        '200':
+          description: List of tourist activities (paginated)
+          content:
+            application/json:
+              schema:
+                 allOf:
+                   - $ref: '#/components/schemas/PaginatedResponse'
+                   - type: object
+                     properties:
+                       data:
+                         type: array
+                         items:
+                           $ref: '#/components/schemas/TouristActivity'
+              example: # Example of paginated activities
+                 data:
+                   - id: 1
+                     name: جولة في قلعة حلب
+                     description: جولة سياحية برفقة مرشد...
+                     site_id: 1
+                     location_text: مدخل قلعة حلب
+                     start_datetime: "2025-06-01T10:00:00Z"
+                     duration_minutes: 120
+                     organizer_user_id: 3
+                     price: 50.00
+                     max_participants: 20
+                     created_at: "2025-05-18T18:40:00Z"
+                     updated_at: "2025-05-18T18:40:00Z"
+                     site: # Example included site relation (abbreviated)
+                         id: 1
+                         name: قلعة حلب
+                     organizer: # Example included organizer relation (abbreviated)
+                         id: 3
+                         username: vendor1
+                         user_type: Vendor
+                   - id: 2
+                     name: ورشة عمل فخار
+                     description: ورشة لتعلم أساسيات صناعة الفخار.
+                     site_id: null # Activity not tied to a specific site
+                     location_text: دمشق، منطقة الصناعات اليدوية
+                     start_datetime: "2025-06-05T14:00:00Z"
+                     duration_minutes: 90
+                     organizer_user_id: 3
+                     price: 150.00
+                     max_participants: 10
+                     created_at: "2025-05-18T18:40:00Z"
+                     updated_at: "2025-05-18T18:40:00Z"
+                     site: null # Null site
+                     organizer:
+                         id: 3
+                         username: vendor1
+                         user_type: Vendor
+                 links:
+                   first: "http://127.0.0.1:8000/api/tourist-activities?page=1"
+                   last: "http://127.0.0.1:8000/api/tourist-activities?page=1"
+                   prev: null
+                   next: null
+                 meta:
+                   current_page: 1
+                   from: 1
+                   last_page: 1
+                   links:
+                     - url: "http://127.0.0.1:8000/api/tourist-activities?page=1"
+                       label: "« Previous"
+                       active: false
+                     - url: "http://127.0.0.1:8000/api/tourist-activities?page=1"
+                       label: "1"
+                       active: true
+                     - url: "http://127.0.0.1:8000/api/tourist-activities?page=1"
+                       label: "Next »"
+                       active: false
+                   path: "http://127.0.0.1:8000/api/tourist-activities"
+                   per_page: 15
+                   to: 2
+                   total: 2 # Example total
+
+
+  /tourist-activities/{touristActivity}:
+    get:
+      summary: Get details for a specific tourist activity
+      tags:
+        - Tourist Activities
+      parameters:
+        - name: touristActivity
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the tourist activity to retrieve.
+          example: 1
+      responses:
+        '200':
+          description: Tourist activity details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TouristActivity'
+              example:
+                 id: 1
+                 name: جولة في قلعة حلب
+                 description: جولة سياحية برفقة مرشد...
+                 site_id: 1
+                 location_text: مدخل قلعة حلب
+                 start_datetime: "2025-06-01T10:00:00Z"
+                 duration_minutes: 120
+                 organizer_user_id: 3
+                 price: 50.00
+                 max_participants: 20
+                 created_at: "2025-05-18T18:40:00Z"
+                 updated_at: "2025-05-18T18:40:00Z"
+                 site: # Example included site relation
+                     id: 1
+                     name: قلعة حلب
+                     description: قلعة أثرية تاريخية...
+                     location_text: حلب، سوريا
+                     latitude: 36.2007
+                     longitude: 36.1629
+                     city: حلب
+                     country: Syria
+                     category_id: 1
+                     main_image_url: /images/aleppo_castle.jpg
+                     video_url: null
+                     added_by_user_id: 1
+                     created_at: "2025-05-18T18:35:00Z"
+                     updated_at: "2025-05-18T18:35:00Z"
+                 organizer: # Example included organizer relation
+                     id: 3
+                     username: vendor1
+                     email: vendor1@app.com
+                     user_type: Vendor
+                     is_active: true
+                     created_at: "2025-05-18T18:18:03Z"
+                     updated_at: "2025-05-18T18:18:03Z"
+                     profile:
+                         first_name: رنا
+                         last_name: ديب
+                         father_name: null
+                         mother_name: null
+                         passport_image_url: null
+                         bio: حرفية في التطريز اليدوي.
+                         profile_picture_url: null
+                         updated_at: "2025-05-18T18:26:00Z"
+        '404':
+          description: Activity not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+
+  /hotels:
+    get:
+      summary: List all hotels
+      tags: [ Hotels ]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+          description: Page number for pagination.
+          example: 1
+        - name: city
+          in: query
+          schema:
+            type: string
+          description: Filter hotels by city.
+          example: دمشق
+        # Add other filter/sort parameters
+      responses:
+        '200':
+          description: List of hotels (paginated)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Hotel'
+              example:
+                data:
+                   - id: 1
+                     name: فندق الشيراتون دمشق
+                     star_rating: 5
+                     description: فندق فاخر يقع في قلب دمشق.
+                     address_line1: طريق المطار
+                     city: دمشق
+                     country: Syria
+                     latitude: 33.5128
+                     longitude: 36.2919
+                     contact_phone: "+963 11 2222222"
+                     contact_email: info@sheratondamascus.com
+                     main_image_url: /images/sheraton_damascus.jpg
+                     managed_by_user_id: 4
+                     created_at: "2025-05-18T18:45:00Z"
+                     updated_at: "2025-05-18T18:45:00Z"
+                     managed_by: # Example included manager
+                         id: 4
+                         username: hotelmanager1
+                         user_type: HotelBookingManager
+                         # ... abbreviated user details
+                     rooms: # Example included rooms
+                        type: array
+                        items:
+                           $ref: '#/components/schemas/HotelRoom'
+                        example:
+                          - id: 1
+                            hotel_id: 1
+                            room_type_id: 1
+                            room_number: "101"
+                            price_per_night: 50000.00
+                            area_sqm: 25.50
+                            max_occupancy: 1
+                            description: غرفة مفردة بإطلالة على المدينة.
+                            is_available_for_booking: true
+                            created_at: "2025-05-18T18:50:00Z"
+                            updated_at: "2025-05-18T18:50:00Z"
+                            type: # Included room type
+                               id: 1
+                               name: Single Room
+                               description: غرفة لشخص واحد...
+                          - id: 2
+                            hotel_id: 1
+                            room_type_id: 2
+                            room_number: "205"
+                            price_per_night: 80000.00
+                            area_sqm: 40.00
+                            max_occupancy: 2
+                            description: غرفة مزدوجة واسعة.
+                            is_available_for_booking: true
+                            created_at: "2025-05-18T18:51:00Z"
+                            updated_at: "2025-05-18T18:51:00Z"
+                            type:
+                               id: 2
+                               name: Double Room
+                               description: غرفة لشخصين...
+                     links:
+                       first: "http://127.0.0.1:8000/api/hotels?page=1"
+                       last: "http://127.0.0.1:8000/api/hotels?page=1"
+                       prev: null
+                       next: null
+                     meta:
+                       current_page: 1
+                       from: 1
+                       last_page: 1
+                       links:
+                         - url: "http://127.0.0.1:8000/api/hotels?page=1"
+                           label: "« Previous"
+                           active: false
+                         - url: "http://127.0.0.1:8000/api/hotels?page=1"
+                           label: "1"
+                           active: true
+                         - url: "http://127.0.0.1:8000/api/hotels?page=1"
+                           label: "Next »"
+                           active: false
+                       path: "http://127.0.0.1:8000/api/hotels"
+                       per_page: 15
+                       to: 1
+                       total: 1 # Example total
+
+
+  /hotels/{hotel}:
+    get:
+      summary: Get details for a specific hotel
+      tags: [ Hotels ]
+      parameters:
+        - name: hotel
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the hotel to retrieve.
+          example: 1
+      responses:
+        '200':
+          description: Hotel details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Hotel'
+              example:
+                 id: 1
+                 name: فندق الشيراتون دمشق
+                 star_rating: 5
+                 description: فندق فاخر يقع في قلب دمشق.
+                 address_line1: طريق المطار
+                 city: دمشق
+                 country: Syria
+                 latitude: 33.5128
+                 longitude: 36.2919
+                 contact_phone: "+963 11 2222222"
+                 contact_email: info@sheratondamascus.com
+                 main_image_url: /images/sheraton_damascus.jpg
+                 managed_by_user_id: 4
+                 created_at: "2025-05-18T18:45:00Z"
+                 updated_at: "2025-05-18T18:45:00Z"
+                 managed_by: # Example included manager
+                     id: 4
+                     username: hotelmanager1
+                     email: hotelmanager1@app.com
+                     user_type: HotelBookingManager
+                     is_active: true
+                     created_at: "2025-05-18T18:18:03Z"
+                     updated_at: "2025-05-18T18:18:03Z"
+                     profile:
+                         first_name: مدير
+                         last_name: الفندق
+                         father_name: null
+                         mother_name: null
+                         passport_image_url: null
+                         bio: مدير حجوزات الفندق.
+                         profile_picture_url: null
+                         updated_at: "2025-05-18T18:27:00Z"
+                 rooms: # Example included rooms
+                    type: array
+                    items:
+                       $ref: '#/components/schemas/HotelRoom'
+                    example:
+                      - id: 1
+                        hotel_id: 1
+                        room_type_id: 1
+                        room_number: "101"
+                        price_per_night: 50000.00
+                        area_sqm: 25.50
+                        max_occupancy: 1
+                        description: غرفة مفردة بإطلالة على المدينة.
+                        is_available_for_booking: true
+                        created_at: "2025-05-18T18:50:00Z"
+                        updated_at: "2025-05-18T18:50:00Z"
+                        type:
+                           id: 1
+                           name: Single Room
+                           description: غرفة لشخص واحد...
+                      - id: 2
+                        hotel_id: 1
+                        room_type_id: 2
+                        room_number: "205"
+                        price_per_night: 80000.00
+                        area_sqm: 40.00
+                        max_occupancy: 2
+                        description: غرفة مزدوجة واسعة.
+                        is_available_for_booking: true
+                        created_at: "2025-05-18T18:51:00Z"
+                        updated_at: "2025-05-18T18:51:00Z"
+                        type:
+                           id: 2
+                           name: Double Room
+                           description: غرفة لشخصين...
+                 # ratings/comments/favorites examples if loaded
+
+        '404':
+          description: Hotel not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+
+  /hotels/{hotel}/rooms:
+      get:
+        summary: Get rooms for a specific hotel
+        tags: [ Hotels ]
+        parameters:
+          - name: hotel
+            in: path
+            required: true
+            schema: { type: integer }
+            description: ID of the hotel to retrieve rooms for.
+            example: 1
+          # Add optional parameters for filtering rooms (e.g., by type, availability)
+          # - name: room_type_id
+          #   in: query
+          #   schema: { type: integer, nullable: true }
+          #   description: Filter rooms by room type ID.
+          #   example: 1
+        responses:
+          '200':
+            description: List of rooms for the hotel
+            content:
+              application/json:
+                schema:
+                   type: array
+                   items:
+                     $ref: '#/components/schemas/HotelRoom'
+                example: # Example of list of rooms
+                   - id: 1
+                     hotel_id: 1
+                     room_type_id: 1
+                     room_number: "101"
+                     price_per_night: 50000.00
+                     area_sqm: 25.50
+                     max_occupancy: 1
+                     description: غرفة مفردة بإطلالة على المدينة.
+                     is_available_for_booking: true
+                     created_at: "2025-05-18T18:50:00Z"
+                     updated_at: "2025-05-18T18:50:00Z"
+                     type: # Included room type
+                         id: 1
+                         name: Single Room
+                         description: غرفة لشخص واحد...
+                   - id: 2
+                     hotel_id: 1
+                     room_type_id: 2
+                     room_number: "205"
+                     price_per_night: 80000.00
+                     area_sqm: 40.00
+                     max_occupancy: 2
+                     description: غرفة مزدوجة واسعة.
+                     is_available_for_booking: true
+                     created_at: "2025-05-18T18:51:00Z"
+                     updated_at: "2025-05-18T18:51:00Z"
+                     type:
+                         id: 2
+                         name: Double Room
+                         description: غرفة لشخصين...
+          '404':
+            description: Hotel not found
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NotFound'
+
+
+  /products:
+    get:
+      summary: List all products (crafts)
+      tags: [ Products ]
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1 }
+          example: 1
+        - name: category_id # Example filtering parameter
+          in: query
+          schema: { type: integer, nullable: true }
+          description: Filter products by category ID.
+          example: 2
+        # Add other filter/sort parameters
+      responses:
+        '200':
+          description: List of products (paginated)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Product'
+              example:
+                data:
+                  - id: 1
+                    seller_user_id: 3
+                    name: وشاح حرير يدوي
+                    description: وشاح مصنوع يدوياً من الحرير الطبيعي بتطريز دمشقي.
+                    color: أحمر
+                    stock_quantity: 15
+                    price: 5000.00
+                    main_image_url: /images/scarf.jpg
+                    category_id: 2
+                    is_available: true
+                    created_at: "2025-05-18T18:30:00Z"
+                    updated_at: "2025-05-18T18:30:00Z"
+                    category: # Example included category
+                       id: 2
+                       name: Embroidery
+                       description: null
+                    seller: # Example included seller user (abbreviated)
+                        id: 3
+                        username: vendor1
+                        user_type: Vendor
+                  - id: 2
+                    seller_user_id: 3
+                    name: صحن فخاري مزجج
+                    description: صحن فخاري تقليدي مزجج بألوان زاهية.
+                    color: null
+                    stock_quantity: 8
+                    price: 1200.00
+                    main_image_url: /images/pottery_plate.jpg
+                    category_id: 3
+                    is_available: true
+                    created_at: "2025-05-18T18:31:00Z"
+                    updated_at: "2025-05-18T18:31:00Z"
+                    category:
+                       id: 3
+                       name: Ceramic Art
+                       description: null
+                    seller:
+                        id: 3
+                        username: vendor1
+                        user_type: Vendor
+                links:
+                  first: "http://127.0.0.1:8000/api/products?page=1"
+                  last: "http://127.0.0.1:8000/api/products?page=1"
+                  prev: null
+                  next: null
+                meta:
+                  current_page: 1
+                  from: 1
+                  last_page: 1
+                  links:
+                    - url: "http://127.0.0.1:8000/api/products?page=1"
+                      label: "« Previous"
+                      active: false
+                    - url: "http://127.0.0.1:8000/api/products?page=1"
+                      label: "1"
+                      active: true
+                    - url: "http://127.0.0.1:8000/api/products?page=1"
+                      label: "Next »"
+                      active: false
+                  path: "http://127.0.0.1:8000/api/products"
+                  per_page: 15
+                  to: 2
+                  total: 2
+
+
+  /products/{product}:
+    get:
+      summary: Get details for a specific product
+      tags: [ Products ]
+      parameters:
+        - name: product
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the product to retrieve.
+          example: 1
+      responses:
+        '200':
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              example:
+                 id: 1
+                 seller_user_id: 3
+                 name: وشاح حرير يدوي
+                 description: وشاح مصنوع يدوياً من الحرير الطبيعي بتطريز دمشقي.
+                 color: أحمر
+                 stock_quantity: 15
+                 price: 5000.00
+                 main_image_url: /images/scarf.jpg
+                 category_id: 2
+                 is_available: true
+                 created_at: "2025-05-18T18:30:00Z"
+                 updated_at: "2025-05-18T18:30:00Z"
+                 category:
+                    id: 2
+                    name: Embroidery
+                    description: null
+                 seller:
+                     id: 3
+                     username: vendor1
+                     email: vendor1@app.com
+                     user_type: Vendor
+                     is_active: true
+                     created_at: "2025-05-18T18:18:03Z"
+                     updated_at: "2025-05-18T18:18:03Z"
+                     profile:
+                         first_name: رنا
+                         last_name: ديب
+                         father_name: null
+                         mother_name: null
+                         passport_image_url: null
+                         bio: حرفية في التطريز اليدوي.
+                         profile_picture_url: null
+                         updated_at: "2025-05-18T18:26:00Z"
+                 # ratings/comments/favorites examples if loaded (nested)
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+
+  /product-categories:
+    get:
+      summary: List all product categories
+      tags:
+        - Products
+        - Categories
+      responses:
+        '200':
+          description: List of product categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductCategory'
+              example:
+                - id: 1
+                  name: Textiles
+                  description: null
+                  parent_category_id: null
+                - id: 2
+                  name: Pottery
+                  description: null
+                  parent_category_id: null
+                - id: 3
+                  name: Jewelry
+                  description: null
+                  parent_category_id: null
+                - id: 4
+                  name: Woodwork
+                  description: null
+                  parent_category_id: null
+                - id: 5
+                  name: Embroidery
+                  description: null
+                  parent_category_id: 1
+                - id: 6
+                  name: Carpets
+                  description: null
+                  parent_category_id: 1
+
+  /articles:
+    get:
+      summary: List all published articles (blog posts)
+      tags: [ Articles ]
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1 }
+          example: 1
+        # Add other filter/sort parameters
+      responses:
+        '200':
+          description: List of articles (paginated)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Article'
+              example:
+                data:
+                  - id: 1
+                    author_user_id: 1
+                    title: أجمل الأماكن في سوريا
+                    content: سوريا غنية بالمواقع السياحية الرائعة...
+                    excerpt: سوريا غنية بالمواقع السياحية الرائعة...
+                    main_image_url: /images/syria_beauty.jpg
+                    video_url: null
+                    tags: سياحة,طبيعة,تاريخ
+                    status: Published
+                    published_at: "2025-05-10T09:00:00Z"
+                    created_at: "2025-05-08T14:00:00Z"
+                    updated_at: "2025-05-10T09:00:00Z"
+                    author: # Example included author (abbreviated)
+                       id: 1
+                       username: admin
+                       user_type: Admin
+                links:
+                   first: "http://127.0.0.1:8000/api/articles?page=1"
+                   last: "http://127.0.0.1:8000/api/articles?page=1"
+                   prev: null
+                   next: null
+                meta:
+                   current_page: 1
+                   from: 1
+                   last_page: 1
+                   links:
+                     - url: "http://127.0.0.1:8000/api/articles?page=1"
+                       label: "« Previous"
+                       active: false
+                     - url: "http://127.0.0.1:8000/api/articles?page=1"
+                       label: "1"
+                       active: true
+                     - url: "http://127.0.0.1:8000/api/articles?page=1"
+                       label: "Next »"
+                       active: false
+                   path: "http://127.0.0.1:8000/api/articles"
+                   per_page: 15
+                   to: 1
+                   total: 1
+
+
+  /articles/{article}:
+    get:
+      summary: Get details for a specific article
+      tags: [ Articles ]
+      parameters:
+        - name: article
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the article to retrieve.
+          example: 1
+      responses:
+        '200':
+          description: Article details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+              example:
+                 id: 1
+                 author_user_id: 1
+                 title: أجمل الأماكن في سوريا
+                 content: سوريا غنية بالمواقع السياحية الرائعة...
+                 excerpt: سوريا غنية بالمواقع السياحية الرائعة...
+                 main_image_url: /images/syria_beauty.jpg
+                 video_url: null
+                 tags: سياحة,طبيعة,تاريخ
+                 status: Published
+                 published_at: "2025-05-10T09:00:00Z"
+                 created_at: "2025-05-08T14:00:00Z"
+                 updated_at: "2025-05-10T09:00:00Z"
+                 author:
+                    id: 1
+                    username: admin
+                    email: admin@app.com
+                    user_type: Admin
+                    is_active: true
+                    created_at: "2025-05-18T18:18:03Z"
+                    updated_at: "2025-05-18T18:18:03Z"
+                    profile:
+                       first_name: المدير
+                       last_name: المسؤول
+                       father_name: null
+                       mother_name: null
+                       passport_image_url: null
+                       bio: مدير النظام الرئيسي
+                       profile_picture_url: null
+                       updated_at: "2025-05-18T18:20:00Z"
+                 # comments/ratings/favorites examples if loaded
+        '404':
+          description: Article not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
 
   /ratings:
     post:
