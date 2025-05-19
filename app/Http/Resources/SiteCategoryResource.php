@@ -14,6 +14,16 @@ class SiteCategoryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+         // 'resource' property is the underlying SiteCategory model instance
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            // 'created_at' => $this->created_at, // No timestamps in schema V2.1
+            // 'updated_at' => $this->updated_at, // No timestamps in schema V2.1
+
+            // Optional: Include count of associated tourist sites
+            // 'tourist_sites_count' => $this->whenCounted('touristSites'), // if using ->withCount('touristSites')
+        ];
     }
 }
