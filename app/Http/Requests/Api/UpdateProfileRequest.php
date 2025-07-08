@@ -36,16 +36,11 @@ class UpdateProfileRequest extends FormRequest
 
         return [
             // UserProfile Fields (required for profile update based on form/schema)
-            'first_name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
+            'first_name' => ['sometimes', 'required', 'string', 'max:100'],
+            'last_name' => ['sometimes', 'required', 'string', 'max:100'],
             'father_name' => ['nullable', 'string', 'max:100'],
             'mother_name' => ['nullable', 'string', 'max:100'],
             'bio' => ['nullable', 'string'],
-
-            // File Uploads (Photo)
-            'profile_picture' => ['nullable', 'image', 'max:5120'], // Optional new photo upload
-            'remove_profile_picture' => ['nullable', 'boolean'], // Checkbox to remove photo
-
             // Optional User Fields (if updateable via profile endpoint)
             // 'username' => [
             //      'nullable', // Allow null or empty string if not changing? Or required if sent?

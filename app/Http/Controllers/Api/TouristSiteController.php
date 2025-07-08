@@ -9,6 +9,8 @@ use App\Models\SiteCategory; // Import SiteCategory model (for filter)
 use App\Http\Resources\TouristSiteResource; // Import TouristSite Resource
 use App\Http\Resources\CommentResource; // Import Comment Resource for fetching comments
 use App\Http\Resources\RatingResource; // Import Rating Resource for fetching ratings
+use App\Http\Resources\SiteExperienceResource; // Import Rating Resource for fetching ratings
+
 // We won't need API Store/Update requests for *this* public browse controller
 // use App\Http\Requests\Api\StoreTouristSiteRequest;
 // use App\Http\Requests\Api\UpdateTouristSiteRequest;
@@ -74,24 +76,20 @@ class TouristSiteController extends Controller
     /**
      * Display the specified tourist site.
      * Accessible at GET /api/tourist-sites/{touristSite}
-     * Can be public.
      *
-     * @param  \App\Models\TouristSite  $touristSite // Route Model Binding
-     * @return \App\Http\Resources\Json\JsonResource|\Illuminate\Http\JsonResponse
+     * @param  \App\Models\TouristSite  $touristSite
+     * @return \App\Http\Resources\TouristSiteResource // ** تم التعديل هنا **
      */
-    public function show(TouristSite $touristSite)
+    public function show(TouristSite $touristSite): TouristSiteResource // ** تم التعديل هنا **
     {
-        // Load relationships needed for the show view (e.g., category, addedBy)
+        // Load relationships needed for the show view
         $touristSite->load(['category', 'addedBy:id,username']);
-
-        // Optional: Load polymorphic relationships if you want to show comments/ratings/experiences here
-        // $touristSite->load(['category', 'addedBy:id,username', 'comments.user.profile', 'ratings.user.profile', 'experiences.user.profile']);
-
+        // Optional: Load more relationships if needed
+        // $touristSite->load(['comments.user.profile', 'ratings.user.profile']);
 
         // Return the single tourist site using TouristSiteResource
         return new TouristSiteResource($touristSite);
     }
-
     /**
      * Update the specified resource in storage.
      * Note: Not for public API.

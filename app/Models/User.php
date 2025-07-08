@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+
 class User extends Authenticatable
 {
-    use  HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens;
 
-    // Primary key is 'id' by default, no need to specify $primaryKey
+    // Primary key is 'id' by default, which is standard and recommended.
+    // No need to specify $primaryKey unless it's not 'id'.
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +23,7 @@ class User extends Authenticatable
     protected $fillable = [
         'username',
         'email',
-        'password', // Using password as per your schema
+        'password', // Assuming migration column name is 'password'
         'user_type',
         'is_active',
     ];
@@ -32,129 +34,207 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
+        'password', // Always hide password hashes from API responses
         'remember_token',
     ];
 
     /**
-     * The attributes that should be cast.
+     * The attributes that should be cast to native types.
      *
      * @var array<string, string>
      */
     protected $casts = [
-        // 'email_verified_at' => 'datetime', // Uncomment if using email verification
-        'password' => 'hashed', // Note: Laravel's default Auth expects 'password' column.
-                                    // If keeping 'password', you might need custom logic
-                                    // for login using Hash::check() or a custom Auth provider.
-                                    // For simplicity with built-in auth features (like password reset),
-                                    // renaming the column to 'password' in the migration is often easier.
-                                    // Assuming you handle password verification manually for API.
-        'is_active' => 'boolean',
+        // 'email_verified_at' => 'datetime', // Uncomment if you are using email verification
+        'password' => 'hashed', // Automatically hash passwords when set
+        'is_active' => 'boolean', // Cast 0/1 to false/true
     ];
 
-    // Define relationships here
+    // --- Relationships ---
 
+    /**
+     * Get the profile associated with the user. (One-to-One)
+     */
     public function profile()
     {
-        // One-to-One relation where User has one profile. Profile table has user_id FK.
-        // Laravel expects FK named user_profile_id by default, but your schema has user_id.
-        // No need to specify 'user_id' explicitly if the FK in user_profiles table is named 'user_id'.
-        // It's standard 'user_id' -> belongsTo(User), User hasOne -> belongsTo(UserProfile).
-        return $this->hasOne(UserProfile::class); // Laravel infers FK name 'user_id' on UserProfiles
+        // Explicitly defining the foreign key ('user_id' on the user_profiles table)
+        // and the local key ('id' on the users table) resolves the 'Unknown column 'id' in where clause' error.
+        return $this->hasOne(UserProfile::class, 'user_id', 'id');
     }
 
+    /**
+     * Get the phone numbers for the user. (One-to-Many)
+     */
     public function phoneNumbers()
     {
-        // One-to-Many relation where User has many phone numbers. PhoneNumbers table has user_id FK.
-        return $this->hasMany(UserPhoneNumber::class); // Laravel infers FK name 'user_id' on UserPhoneNumbers
+        // Laravel correctly infers the foreign key 'user_id' here.
+        return $this->hasMany(UserPhoneNumber::class);
     }
 
+    /**
+     * Get the products listed by the user (if they are a vendor). (One-to-Many)
+     */
     public function products()
     {
-        // One-to-Many relation where User (as seller/vendor) has many products. Products table has seller_user_id FK.
-        return $this->hasMany(Product::class, 'seller_user_id'); // Specify FK name if not user_id
+        // We must specify the foreign key 'seller_user_id' because it's not the conventional 'user_id'.
+        return $this->hasMany(Product::class, 'seller_user_id');
     }
 
+    /**
+     * Get the shopping cart items for the user. (One-to-Many)
+     */
     public function shoppingCartItems()
     {
-        // One-to-Many relation where User has many cart items. ShoppingCartItems table has user_id FK.
-         return $this->hasMany(ShoppingCartItem::class);
+        return $this->hasMany(ShoppingCartItem::class);
     }
 
+    /**
+     * Get the product orders for the user. (One-to-Many)
+     */
     public function productOrders()
     {
-        // One-to-Many relation where User has many product orders. ProductOrders table has user_id FK.
-         return $this->hasMany(ProductOrder::class);
+        return $this->hasMany(ProductOrder::class);
     }
 
+    /**
+     * Get the tourist sites added by the user. (One-to-Many)
+     */
     public function touristSitesAdded()
     {
-        // One-to-Many relation where User added many sites. TouristSites table has added_by_user_id FK.
-         return $this->hasMany(TouristSite::class, 'added_by_user_id');
+        // Specify the foreign key 'added_by_user_id'
+        return $this->hasMany(TouristSite::class, 'added_by_user_id');
     }
 
+    /**
+     * Get the tourist activities organized by the user. (One-to-Many)
+     */
     public function touristActivitiesOrganized()
     {
-        // One-to-Many relation where User organized many activities. TouristActivities table has organizer_user_id FK.
-         return $this->hasMany(TouristActivity::class, 'organizer_user_id');
+        // Specify the foreign key 'organizer_user_id'
+        return $this->hasMany(TouristActivity::class, 'organizer_user_id');
     }
 
+    /**
+     * Get the hotels managed by the user. (One-to-Many)
+     */
      public function hotelsManaged()
     {
-        // One-to-Many relation where User manages many hotels. Hotels table has managed_by_user_id FK.
-         return $this->hasMany(Hotel::class, 'managed_by_user_id');
+        // Specify the foreign key 'managed_by_user_id'
+        return $this->hasMany(Hotel::class, 'managed_by_user_id');
     }
 
+    /**
+     * Get the hotel bookings made by the user. (One-to-Many)
+     */
      public function hotelBookings()
     {
-        // One-to-Many relation where User has many hotel bookings. HotelBookings table has user_id FK.
-         return $this->hasMany(HotelBooking::class);
+        return $this->hasMany(HotelBooking::class);
     }
 
+    /**
+     * Get the site experiences written by the user. (One-to-Many)
+     */
      public function siteExperiences()
     {
-        // One-to-Many relation where User wrote many experiences. SiteExperiences table has user_id FK.
-         return $this->hasMany(SiteExperience::class);
+        return $this->hasMany(SiteExperience::class);
     }
 
+    /**
+     * Get the articles authored by the user. (One-to-Many)
+     */
      public function articlesAuthored()
     {
-        // One-to-Many relation where User authored many articles. Articles table has author_user_id FK.
-         return $this->hasMany(Article::class, 'author_user_id');
+        // Specify the foreign key 'author_user_id'
+        return $this->hasMany(Article::class, 'author_user_id');
     }
 
-    // Polymorphic relationships where User is the source of the action (Many-to-One polymorphic)
-    // e.g., User has many Favorites (where Favorite's user_id is this user's id)
+    // --- Polymorphic Relationships (where User is the source) ---
+
+    /**
+     * Get all of the user's favorites.
+     */
     public function favorites()
     {
-        return $this->hasMany(Favorite::class); // Favorite model has user_id FK
+        return $this->hasMany(Favorite::class);
     }
 
+    /**
+     * Get all of the user's ratings.
+     */
     public function ratings()
     {
-        return $this->hasMany(Rating::class); // Rating model has user_id FK
+        return $this->hasMany(Rating::class);
     }
 
+    /**
+     * Get all of the user's comments.
+     */
     public function comments()
     {
-        return $this->hasMany(Comment::class); // Comment model has user_id FK
+        return $this->hasMany(Comment::class);
     }
 
-    // Accessors or methods for role checking
-    public function isAdmin()
+
+    // --- Role & Permission Helpers ---
+
+    /**
+     * Check if the user is an Administrator.
+     */
+    public function isAdmin(): bool
     {
         return $this->user_type === 'Admin';
     }
 
-     public function isVendor()
+    /**
+     * Check if the user is a Vendor.
+     */
+     public function isVendor(): bool
     {
         return $this->user_type === 'Vendor';
     }
 
-    public function isTourist()
+    /**
+     * Check if the user is a Tourist.
+     */
+    public function isTourist(): bool
     {
         return $this->user_type === 'Tourist';
     }
 
-     // ... methods for other user types
+    /**
+     * Check if the user is a Hotel Booking Manager.
+     */
+    public function isHotelBookingManager(): bool
+    {
+        return $this->user_type === 'HotelBookingManager';
+    }
+
+    /**
+     * Check if the user is an Article Writer.
+     */
+     public function isArticleWriter(): bool
+    {
+        return $this->user_type === 'ArticleWriter';
+    }
+
+    /**
+     * Check if the user is an Employee.
+     */
+     public function isEmployee(): bool
+    {
+        return $this->user_type === 'Employee';
+    }
+
+    /**
+     * A generic method to check if the user has a specific role or one of several roles.
+     * @param string|array $roles The role or roles to check against.
+     * @return bool
+     */
+    public function hasRole(string|array $roles): bool
+    {
+        if (is_string($roles)) {
+            return $this->user_type === $roles;
+        }
+
+        return in_array($this->user_type, $roles, true);
+    }
 }

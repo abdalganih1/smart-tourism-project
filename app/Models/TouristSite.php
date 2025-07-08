@@ -51,8 +51,8 @@ class TouristSite extends Model
 
     public function experiences()
     {
-        // TouristSite has many SiteExperiences. SiteExperiences table has site_id FK.
-        return $this->hasMany(SiteExperience::class);
+        // Tell Laravel that the foreign key on the 'site_experiences' table is 'site_id'
+        return $this->hasMany(SiteExperience::class, 'site_id', 'id');
     }
 
     // Polymorphic relationships where this TouristSite is the target

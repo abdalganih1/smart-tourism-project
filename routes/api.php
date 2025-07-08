@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api; // Import the API controllers namespace
+use App\Http\Resources\UserResource; // Import UserResource for consistency
 
 /*
 |--------------------------------------------------------------------------
@@ -83,11 +84,23 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
 
-    // User Profile Management
-    // Accessible at /api/profile (show authenticated user's profile)
+    // --- Profile Information ---
+    // GET: /api/profile -> Fetches the user's profile information
+    // PUT/PATCH: /api/profile -> Updates user's textual profile information
     Route::get('/profile', [Api\UserProfileController::class, 'show']);
-    // Accessible at /api/profile (update authenticated user's profile) - Using POST to facilitate file uploads (profile picture)
-    Route::post('/profile', [Api\UserProfileController::class, 'update']);
+    Route::put('/profile', [Api\UserProfileController::class, 'update']); // Use PUT for full replacement, or PATCH for partial update
+
+
+    // --- Profile Picture Management ---
+    // POST: /api/profile/picture -> Uploads a new profile picture
+    // DELETE: /api/profile/picture -> Removes the current profile picture
+    Route::post('/profile/picture', [Api\UserProfileController::class, 'updateProfilePicture']); // POST is standard for file uploads
+    Route::delete('/profile/picture', [Api\UserProfileController::class, 'removeProfilePicture']);
+
+
+    // --- Password Management ---
+    // PUT/PATCH: /api/profile/password -> Updates the user's password
+    Route::put('/profile/password', [Api\UserProfileController::class, 'updatePassword']); // Use PUT or PATCH for password updates
 
 
     // Shopping Cart Management

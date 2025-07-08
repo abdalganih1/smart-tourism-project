@@ -5,9 +5,12 @@ namespace App\Http\Requests\Api;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\ResolvesPolymorphicTargets; // Import the Trait
 
 class ToggleFavoriteRequest extends FormRequest
 {
+    use ResolvesPolymorphicTargets; // Use the Trait
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -15,7 +18,6 @@ class ToggleFavoriteRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // User must be authenticated to toggle a favorite
         return Auth::check();
     }
 
@@ -26,49 +28,43 @@ class ToggleFavoriteRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Define allowed target types and get the class for validation
-        $allowedTargetTypes = ['TouristSite', 'Product', 'Article', 'Hotel', 'SiteExperience']; // Add/remove as per your favorite logic
-        // Map request type to lowercase for map lookup
-        $requestedTargetType = strtolower($this->input('target_type'));
+        $targetType = $this->input('target_type');
+        // Define allowed target types as per your schema 'Enum'
+        $allowedTargetTypes = ['TouristSite', 'Product', 'Article', 'Hotel', 'SiteExperience'];
 
-        // Get the model class for the target type (Reuse mapping helper from CommentController or create a shared one)
-        // For simplicity here, inline the mapping check for validation Rule::exists
-         $targetTable = null;
-         switch ($requestedTargetType) {
-             case 'article': $targetTable = 'articles'; break;
-             case 'product': $targetTable = 'products'; break;
-             case 'touristsite': $targetTable = 'tourist_sites'; break;
-             case 'hotel': $targetTable = 'hotels'; break;
-             case 'siteexperience': $targetTable = 'site_experiences'; break;
-             // Add other cases here
-         }
-
+        // Get the actual table name based on the target_type
+        $targetTable = $this->mapTargetTypeToTable($targetType);
+//   dd($targetType, $targetTable);
+        // Fallback table name for Rule::exists if $targetTable is null (invalid target_type will be caught by Rule::in first)
+        $existsRuleTable = $targetTable ?? 'invalid_dummy_table'; // Use a dummy table to prevent DB errors if map returns null
 
         return [
-            'target_type' => ['required', 'string', Rule::in($allowedTargetTypes)], // Must be one of allowed types
+            'target_type' => [
+                'required',
+                'string',
+                Rule::in($allowedTargetTypes),
+            ],
             'target_id' => [
                 'required',
                 'integer',
-                // Ensure target_id exists in the corresponding table for the target_type
-                 // Use a dummy table name if targetType is invalid to prevent errors, validation will catch target_type.in anyway.
-                 Rule::exists($targetTable ?? 'some_invalid_table', 'id'),
+                // Use Rule::exists with the dynamically determined table name
+                Rule::exists($existsRuleTable, 'id'),
             ],
         ];
     }
 
-     /**
-      * Get custom attributes for validator errors.
-      *
-      * @return array<string, string>
-      */
-     public function attributes(): array
-     {
-         return [
-             'target_type' => __('Target Type'),
-             'target_id' => __('Target ID'),
-         ];
-     }
-
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'target_type' => __('Target Type'),
+            'target_id' => __('Target ID'),
+        ];
+    }
 
     /**
      * Get the error messages for the defined validation rules.
@@ -82,8 +78,7 @@ class ToggleFavoriteRequest extends FormRequest
             'target_type.in' => 'نوع العنصر المحدد غير صالح.',
             'target_id.required' => 'يجب تحديد العنصر.',
             'target_id.integer' => 'معرف العنصر يجب أن يكون رقماً صحيحاً.',
-            'target_id.exists' => 'العنصر المحدد غير موجود.',
-            // ...
+            'target_id.exists' => 'العنصر المحدد غير موجود أو نوع العنصر غير صحيح.', // More specific message
         ];
     }
 }

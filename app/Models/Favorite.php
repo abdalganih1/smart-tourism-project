@@ -9,18 +9,26 @@ class Favorite extends Model
 {
     use HasFactory;
 
-    // Primary key is 'id' by default
-    // If you used a composite PK in the migration, uncomment and adjust below:
-    // protected $primaryKey = ['user_id', 'target_type', 'target_id']; // Example for composite
-    // public $incrementing = false; // Composite PK is not auto-incrementing
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false; // ** أضف هذا السطر ** - هذا يخبر Laravel ألا يبحث عن created_at/updated_at
 
     protected $fillable = [
         'user_id',
         'target_type',
         'target_id',
-        // 'added_at' is usually handled by default in DB
+        // Note: added_at should be handled by the database with a default value
+        // If it's not, you must add 'added_at' to fillable and pass it in create()
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
      protected $casts = [
         'added_at' => 'datetime',
     ];
@@ -28,14 +36,11 @@ class Favorite extends Model
 
     public function user()
     {
-        // Favorite belongs to a User. Favorites table has user_id FK.
         return $this->belongsTo(User::class);
     }
 
-    // Polymorphic relationship to the favorited item (Site, Product, Article, Hotel)
-    // Laravel expects target_type and target_id columns by default
     public function target()
     {
-        return $this->morphTo(); // Searches for target_type and target_id columns
+        return $this->morphTo();
     }
 }

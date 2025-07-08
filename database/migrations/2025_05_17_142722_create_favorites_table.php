@@ -13,16 +13,14 @@ return new class extends Migration
 public function up(): void
 {
     Schema::create('favorites', function (Blueprint $table) {
-        // Composite primary key as per schema (user_id, target_type, target_id)
-        $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-        $table->string('target_type', 30); // e.g., 'TouristSite', 'Product', 'Article', 'Hotel'
-        $table->unsignedBigInteger('target_id'); // ID of the favorited item
-        $table->timestamp('added_at')->useCurrent();
+        $table->id(); // OR a composite primary key
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->string('target_type');
+        $table->unsignedBigInteger('target_id');
+        $table->timestamp('added_at')->useCurrent(); // ** هل هذا السطر موجود هكذا؟ **
 
-        // Define the composite primary key
-        $table->primary(['user_id', 'target_type', 'target_id']);
-
-        // Note: No foreign key constraint for target_id here due to polymorphic nature
+        // Laravel's default timestamps (optional but good practice)
+        // $table->timestamps(); // This adds created_at and updated_at
     });
 }
 // ... down() ...
