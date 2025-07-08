@@ -12,7 +12,7 @@ use App\Http\Resources\CommentResource; // Import Comment Resource
 use Illuminate\Support\Facades\Auth; // For authentication and user checks
 use Illuminate\Support\Facades\Log; // For logging
 use Illuminate\Auth\Access\AuthorizationException; // For authorization errors
-use App\Traits\ResolvesPolymorphicTargets; // Import the Trait
+use Illuminate\Support\Str; // Import Str for string manipulation
 
 
 class CommentController extends Controller
@@ -179,8 +179,6 @@ class CommentController extends Controller
          // Map the target type string to the actual model class
          $modelClass = $this->mapTargetTypeToModel($targetType);
 
-         $modelClass = $this->mapTargetTypeToModel($targetType);
-
          if (!$modelClass) {
              return response()->json(['message' => 'Invalid target type provided.'], 404);
          }
@@ -221,6 +219,31 @@ class CommentController extends Controller
            // Return the collection of replies using CommentResource
            return CommentResource::collection($replies);
       }
+
+    /**
+     * Maps a target_type string to its corresponding Model class name.
+     * This is useful for polymorphic relationships.
+     *
+     * @param string $targetType
+     * @return string|null
+     */
+    protected function mapTargetTypeToModel(string $targetType): ?string
+    {
+        // Define your mapping here. Keys should be the exact strings used in target_type column (e.g., 'TouristSite', 'Product')
+        // Values should be the full class names of the models.
+        $mapping = [
+            'TouristSite' => \App\Models\TouristSite::class,
+            'Product' => \App\Models\Product::class,
+            'Article' => \App\Models\Article::class,
+            'Hotel' => \App\Models\Hotel::class,
+            'SiteExperience' => \App\Models\SiteExperience::class,
+            // Add other polymorphic target types here
+        ];
+
+        // Convert the incoming targetType (e.g., 'tourist-sites') to the expected model key (e.g., 'TouristSite')
+        $studlyTargetType = Str::studly(Str::singular($targetType));
+        return $mapping[$studlyTargetType] ?? null;
+    }
 
 
     }
