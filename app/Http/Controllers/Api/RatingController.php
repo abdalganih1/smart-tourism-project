@@ -81,7 +81,7 @@ class RatingController extends Controller
      * Display the specified resource. (Less common for ratings themselves - fetched via target)
      *
      * @param  \App\Models\Rating  $rating // Route Model Binding
-     * @return \App\Http\Resources\Json\JsonResource|\Illuminate\Http\JsonResponse
+     * @return \App\Http\Resources\RatingResource|\Illuminate\Http\JsonResponse
      */
     public function show(Rating $rating)
     {
@@ -99,7 +99,7 @@ class RatingController extends Controller
      *
      * @param  \App\Http\Requests\Api\UpdateRatingRequest  $request // Use custom request for validation
      * @param  \App\Models\Rating  $rating // Route Model Binding
-     * @return \App\Http\Resources\Json\JsonResource|\Illuminate\Http\JsonResponse
+     * @return \App\Http\Resources\RatingResource|\Illuminate\Http\JsonResponse
      */
     public function update(UpdateRatingRequest $request, Rating $rating)
     {

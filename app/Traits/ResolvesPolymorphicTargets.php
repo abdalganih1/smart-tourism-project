@@ -27,7 +27,7 @@ trait ResolvesPolymorphicTargets
         ];
 
         // Convert the incoming targetType (e.g., 'tourist-sites') to the expected model key (e.g., 'TouristSite')
-        $studlyTargetType = Str::studly($targetType);
+        $studlyTargetType = Str::studly(Str::singular($targetType));
         return $mapping[$studlyTargetType] ?? null;
     }
 

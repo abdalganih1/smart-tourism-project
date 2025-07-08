@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
     // Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
         // Default logout route provided by Breeze auth scaffolding
-        Route::post('logout', [App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])
+        Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
          ->name('logout');
 
     // Your existing profile route using Volt

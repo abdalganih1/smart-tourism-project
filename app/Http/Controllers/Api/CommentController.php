@@ -77,7 +77,7 @@ class CommentController extends Controller
      * (Might not be the primary way to view comments - usually fetched via target)
      *
      * @param  \App\Models\Comment  $comment // Route Model Binding
-     * @return \App\Http\Resources\Json\JsonResource|\Illuminate\Http\JsonResponse
+     * @return \App\Http\Resources\CommentResource|\Illuminate\Http\JsonResponse
      */
     public function show(Comment $comment)
     {
@@ -98,7 +98,7 @@ class CommentController extends Controller
      *
      * @param  \App\Http\Requests\Api\UpdateCommentRequest  $request // Use custom request for validation
      * @param  \App\Models\Comment  $comment // Route Model Binding
-     * @return \App\Http\Resources\Json\JsonResource|\Illuminate\Http\JsonResponse
+     * @return \App\Http\Resources\CommentResource|\Illuminate\Http\JsonResponse
      */
     public function update(UpdateCommentRequest $request, Comment $comment)
     {
