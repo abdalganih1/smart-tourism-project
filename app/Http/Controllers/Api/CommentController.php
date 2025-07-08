@@ -179,9 +179,14 @@ class CommentController extends Controller
          // Map the target type string to the actual model class
          $modelClass = $this->mapTargetTypeToModel($targetType);
 
-         // Check if the target type is valid and the target item exists
-         if (!$modelClass || !$target = $modelClass::find($targetId)) {
-             return response()->json(['message' => 'Invalid target or target not found.'], 404);
+         $modelClass = $this->mapTargetTypeToModel($targetType);
+
+         if (!$modelClass) {
+             return response()->json(['message' => 'Invalid target type provided.'], 404);
+         }
+
+         if (!$target = $modelClass::find($targetId)) {
+             return response()->json(['message' => 'Target with the provided ID not found.'], 404);
          }
 
          // Fetch top-level comments for this target (comments with no parent_comment_id)
@@ -218,26 +223,4 @@ class CommentController extends Controller
       }
 
 
-     /**
-      * Helper method to map target_type string to Model class.
-      * Add more mappings as needed for other polymorphic targets.
-      *
-      * @param string $targetType
-      * @return string|null The full model class name or null if not found.
-      */
-     public function mapTargetTypeToModel(string $targetType): ?string
-     {
-         // Use a mapping array to be explicit and secure
-         $map = [
-             'article' => \App\Models\Article::class,
-             'product' => \App\Models\Product::class,
-             'touristsite' => \App\Models\TouristSite::class,
-             'hotel' => \App\Models\Hotel::class,
-             'siteexperience' => \App\Models\SiteExperience::class,
-             // Add other polymorphic targets here
-         ];
-
-         // Return the model class if found in the map
-         return $map[strtolower($targetType)] ?? null;
-     }
-}
+    }
