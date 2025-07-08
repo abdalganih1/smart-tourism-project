@@ -12,10 +12,12 @@ use App\Http\Resources\CommentResource; // Import Comment Resource
 use Illuminate\Support\Facades\Auth; // For authentication and user checks
 use Illuminate\Support\Facades\Log; // For logging
 use Illuminate\Auth\Access\AuthorizationException; // For authorization errors
+use App\Traits\ResolvesPolymorphicTargets; // Import the Trait
 
 
 class CommentController extends Controller
 {
+
     /**
      * Display a listing of the resource (less common for comments themselves).
      * You'd typically fetch comments for a specific target.

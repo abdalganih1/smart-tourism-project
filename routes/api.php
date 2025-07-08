@@ -57,11 +57,11 @@ Route::get('/articles/{article}', [Api\ArticleController::class, 'show']);
 // They can be public to allow browsing.
 // Note: These call custom methods in the respective Controllers.
 
-// Get comments for a specific target (e.g., /api/article/1/comments)
+// Get comments for a specific target (e.g., /api/articles/1/comments)
 // {targetType} and {targetId} are route parameters that map to arguments in indexForTarget method
 Route::get('/{targetType}/{targetId}/comments', [Api\CommentController::class, 'indexForTarget']);
 
-// Get ratings for a specific target (e.g., /api/product/5/ratings)
+// Get ratings for a specific target (e.g., /api/products/5/ratings)
 Route::get('/{targetType}/{targetId}/ratings', [Api\RatingController::class, 'indexForTarget']);
 
 // Get experiences for a specific tourist site (e.g., /api/tourist-sites/1/experiences)

@@ -11,12 +11,13 @@ use App\Http\Resources\RatingResource; // Import Rating Resource
 use Illuminate\Support\Facades\Auth; // For authentication
 use Illuminate\Support\Facades\Log; // For logging
 use Illuminate\Auth\Access\AuthorizationException; // For authorization errors
-// Use CommentController helper for mapping target type if needed for indexForTarget
-use App\Http\Controllers\Api\CommentController;
+use App\Traits\ResolvesPolymorphicTargets; // Import the Trait
 
 
 class RatingController extends Controller
 {
+    use ResolvesPolymorphicTargets; // Use the Trait
+
     /**
      * Display a listing of the resource (less common for ratings themselves).
      * You'd typically fetch ratings for a specific target.
@@ -168,7 +169,7 @@ class RatingController extends Controller
      public function indexForTarget(string $targetType, int $targetId)
      {
          // Map the target type string to the actual model class using helper from CommentController
-         $modelClass = (new CommentController())->mapTargetTypeToModel($targetType); // Reusing the helper
+         $modelClass = $this->mapTargetTypeToModel($targetType); // Reusing the helper
 
          // Check if the target type is valid and the target item exists
          if (!$modelClass || !$target = $modelClass::find($targetId)) {
